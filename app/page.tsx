@@ -1,7 +1,9 @@
-
+import InvitationPage from "./invitation/page";
 
 export default function Home() {
   return (
-    <div></div>
-      );
+    <section>
+      <InvitationPage />
+    </section>
+  );
 }

@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Inter } from "next/font/google";
+import { ArrowLeft, Info, Lock } from "lucide-react";
+import SuccessModal from "../components/modals/SuccessModal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -12,20 +15,7 @@ const inter = Inter({
 /* ---------- Icons ---------- */
 
 const LockIcon = () => (
-  <svg
-    width="30"
-    height="30"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#fff"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="4" y="10" width="16" height="11" rx="3" />
-    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
-    <circle cx="12" cy="15.5" r="1.2" fill="#fff" />
-  </svg>
+  <Lock />
 );
 
 const EyeIcon = ({ off }: { off: boolean }) => (
@@ -56,18 +46,7 @@ const EyeIcon = ({ off }: { off: boolean }) => (
 );
 
 const InfoIcon = () => (
-  <svg
-    width="11"
-    height="11"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#B95C1E"
-    strokeWidth="2.2"
-    strokeLinecap="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 16v-4M12 8h.01" />
-  </svg>
+ <Info />
 );
 
 const StarIcon = ({ filled }: { filled: boolean }) => (
@@ -112,12 +91,14 @@ function PasswordField({
   onChange,
   error,
   defaultVisible = false,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   error?: string;
   defaultVisible?: boolean;
+  placeholder: string;
 }) {
   const [visible, setVisible] = useState(defaultVisible);
   return (
@@ -129,8 +110,9 @@ function PasswordField({
         <input
           type={visible ? "text" : "password"}
           value={value}
+          placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="h-[30px] w-full rounded-[6px] border border-[#D9D9D9] bg-white pl-[18px] pr-10 text-[11px] text-[#111827] outline-none focus:border-[#0A1F44]"
+          className="py-3 w-full rounded-[6px] border border-[#D9D9D9] bg-white pl-[18px] pr-10 text-[11px] text-[#111827] outline-none focus:border-[#0A1F44]"
         />
         <button
           type="button"
@@ -150,19 +132,21 @@ function PasswordField({
 
 const STRENGTH = [
   { stars: 0, label: "" },
-  { stars: 1, label: "Weak" },
-  { stars: 1, label: "Weak" },
-  { stars: 2, label: "Fair" },
+  { stars: 1, label: "Poor" },
+  { stars: 2, label: "Weak" },
+  { stars: 3, label: "Fair" },
   { stars: 4, label: "Good" },
   { stars: 5, label: "Strong" },
 ];
 
 export default function CreatePasswordPage() {
+  const router = useRouter();
   const [tempPassword, setTempPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [tempError, setTempError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSuccessmodalopen, setIssuccessmodalopen] = useState(false)
 
   const rules = [
     { label: "12+ characters", met: password.length >= 12 },
@@ -176,25 +160,55 @@ export default function CreatePasswordPage() {
   const allMet = metCount === rules.length;
   const mismatch = confirm.length > 0 && confirm !== password;
 
-  const handleChangePassword = async () => {
-    // TODO: replace with your API call to verify the temporary password
+  const handleback = () => {
+    router.push("/invitation");
+  };
+
+  const canSubmit =
+    tempPassword.length > 0 && allMet && confirm.length > 0 && !mismatch;
+
+  const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (loading) return;
+
     const ok = tempPassword.length > 0;
     setTempError(ok ? "" : "Incorrect temporary password");
-    if (!ok || !allMet || mismatch) return;
-    // submit...
+    if (!canSubmit) return;
 
+    setLoading(true);
+    try {
+      // TODO: replace with your API call to verify the temporary password
+      // and save the new one, e.g. await changePassword(tempPassword, password)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIssuccessmodalopen(true)
+      // router.push("/login");
+    } catch {
+      setTempError("Incorrect temporary password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <main className={`${inter.className} min-h-screen bg-white p-3`}>
-      <div className="w-[478px] rounded-[16px] bg-[#F4F4F4] px-[18px] pb-[22px] pt-[20px]">
+    <main className={` min-h-screen bg-white p-3 w-full`}>
+      <div className="text-sm flex items-center gap-2 py-5 w-fit mt-10 ml-160 ">
+        
+          <button 
+          onClick={handleback}
+          className="text-sm flex items-center gap-2 w-fit  cursor-pointer bg-gray-100 p-2 rounded-md font-semibold text-[13px]">
+            <ArrowLeft size={19} />
+            Back
+          </button>
+        
+      </div>
+      <div className="mx-auto w-full max-w-[550px] rounded-xl border border-[#e7e9ed] bg-[#F5F5F5] px-8 py-8 shadow-[0_1px_4px_rgba(0,0,0,0.03)] sm:px-12 sm:py-10 md:px-[60px]">
         {/* Header */}
         <div className="flex flex-col items-center">
           <div className="flex h-[75px] w-[75px] items-center justify-center rounded-full bg-[#0A1F44]">
             <LockIcon />
           </div>
           <Image
-            src="/axiomvault-logo.png"
+            src="/axiomlogo.svg"
             alt="AxiomVault"
             width={106}
             height={30}
@@ -203,7 +217,7 @@ export default function CreatePasswordPage() {
           <h1 className="mt-[27px] text-[20px] font-bold leading-none text-[#111827]">
             Create New Password
           </h1>
-          <p className="mt-[19px] text-[10px] leading-none text-[#374151]">
+          <p className="mt-[19px] text-[16px] leading-none text-[#374151]">
             Create a secured password for your administrator account.
           </p>
         </div>
@@ -213,6 +227,7 @@ export default function CreatePasswordPage() {
           <div className="mt-[40px]">
             <PasswordField
               label="Enter Temporary Password"
+              placeholder="Temporary Password"
               value={tempPassword}
               onChange={setTempPassword}
               error={tempError}
@@ -221,6 +236,7 @@ export default function CreatePasswordPage() {
           <div className="mt-[25px]">
             <PasswordField
               label="Password"
+              placeholder="Enter Password"
               value={password}
               onChange={setPassword}
               error={
@@ -255,6 +271,7 @@ export default function CreatePasswordPage() {
           <div className="mt-[25px]">
             <PasswordField
               label="Confirm Password"
+              placeholder="Re-enter Password"
               value={confirm}
               onChange={setConfirm}
               defaultVisible
@@ -265,20 +282,21 @@ export default function CreatePasswordPage() {
           <div className="mt-[30px] grid grid-cols-2 gap-[12px]">
             <button
               type="button"
-              className="h-[26px] rounded-[4px] bg-[#0A1F44] text-[10px] font-medium text-white"
+              onClick={() => router.push("/login")}
+              className="py-2 rounded-[4px] bg-[#0A1F44] text-[16px] font-medium text-white"
             >
               Skip
             </button>
             <button
-              disabled={loading}
-              type="button"
-              className="h-[26px] rounded-[4px] bg-[#0A1F44] text-[10px] font-medium text-white"
+              disabled={loading || !canSubmit}
+              type="submit"
+              className="py-2 rounded-[4px] bg-[#0A1F44] text-[16px] font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-                {loading ? "" : ""}
               {loading ? "Creating Password..." : "Continue"}
             </button>
           </div>
         </form>
+       <SuccessModal isOpen={isSuccessmodalopen} onClose={() => setIssuccessmodalopen(false)} />
       </div>
     </main>
   );
