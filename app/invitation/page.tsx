@@ -70,6 +70,7 @@ export default function InvitationPage() {
         {/* CTA */}
         <div className="mt-[56px] flex justify-center">
           <button
+            title={`accept invitation`}
             type="button"
             className="cursor-pointer flex py-2 items-center gap-3 rounded-[8px] bg-[#0d2b5c] px-[10px] text-[16px] font-medium text-white shadow-sm transition hover:bg-[#102f65]"
           >

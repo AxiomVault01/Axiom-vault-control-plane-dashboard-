@@ -113,22 +113,22 @@ export default function SecureAccountPage() {
 
   const verificationCode = otp.join("");
 
-  const handleEnableMFA = async () =>{
+  const handleEnableMFA = async () => {
     if (verificationCode.length !== 6) {
         alert("Please enter the 6-digit verification code.");
     }
     console.log("Verification code:", verificationCode);
-    
     setLoading(true);
     try {
+        // Submit OTP to your API here
         setIssuccessmodalopen(true);
     } catch (err) {
       console.error(err);
     } finally {
-      setIssuccessmodalopen(false);
-      setLoading(true);
+    //   setIssuccessmodalopen(false);
+      setLoading(false);
     }
-    // }Submit OTP to your API here
+    
   };
 
   return (

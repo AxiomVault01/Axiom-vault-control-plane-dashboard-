@@ -2,7 +2,6 @@
 
 import { CheckCircle2, Info, X } from "lucide-react";
 import Link from "next/link";
-// import { useRouter } from "next/router";
 
 interface SuccessModalProps {
   onClose: () => void;
@@ -16,12 +15,6 @@ export default function SecureModal({
   // onSecureAccount,
 }: SuccessModalProps) {
   if (!isOpen) return null;
-
-  // const router = useRouter()
-
-  // const Handlesecureaccount = () => {
-  //   router.push("/secureaccount")
-  // }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
